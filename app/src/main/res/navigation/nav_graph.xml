@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.myfragmentapp.screens.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_rssFragment"
+            app:destination="@id/rssFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/rssViewFragment"
+        android:name="com.example.myfragmentapp.screens.RssViewFragment"
+        android:label="fragment_rss_view"
+        tools:layout="@layout/fragment_rss_view" >
+        <argument android:name="rssLink"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/rssFragment"
+        android:name="com.example.myfragmentapp.screens.RssFragment"
+        android:label="rss_list"
+        tools:layout="@layout/rss_list" >
+        <action
+            android:id="@+id/action_rssFragment_to_rssViewFragment"
+            app:destination="@id/rssViewFragment" />
+        <argument
+            android:name="feedLink"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.myfragmentapp.screens.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+</navigation>
