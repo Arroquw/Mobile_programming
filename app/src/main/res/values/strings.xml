@@ -21,7 +21,7 @@
     <!-- Messages Preferences -->
     <string name="preferences_edittext_title">Add RSS feed</string>
     <string name="preferences_edittext_summ">Enter the title and link for the new link to add</string>
-    <string name="preferences_edittext_default" />
+    <string name="preferences_edittext_default">Reset to defaults</string>
     <string name="preferences_edittext_message">Enter link and title</string>
 
     <string name="preferences_delete_title">Delete RSS feed</string>

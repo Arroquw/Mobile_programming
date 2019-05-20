@@ -92,6 +92,22 @@ public class MainActivity extends AppCompatActivity implements ToolbarTitleListe
         editor.apply();
     }
 
+    public void deleteListFromPreferences() {
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.add_entry), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.commit();
+        urls = null;
+        urls = new ArrayList<>(Arrays.asList(
+                new LinkItem("LifeHacker RSS Feed", "https://lifehacker.com/rss"),
+                new LinkItem("Google News Feed", "https://news.google.com/news/rss"),
+                new LinkItem("BBC UK world news", "http://feeds.bbci.co.uk/news/world/rss.xml"),
+                new LinkItem("New York times world news", "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml"),
+                new LinkItem("The Guardian world news", "https://www.theguardian.com/world/rss"),
+                new LinkItem("Reuters RSS Feed", "http://feeds.reuters.com/Reuters/worldNews"),
+                new LinkItem("Independent UK world news", "http://www.independent.co.uk/news/world/rss")));
+    }
+
     public boolean getListFromPreferences() {
         SharedPreferences prefs = getSharedPreferences(getString(R.string.add_entry), Context.MODE_PRIVATE);
         if (prefs.contains(getString(R.string.add_entry))) {

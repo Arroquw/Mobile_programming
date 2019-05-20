@@ -35,8 +35,36 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onCreate(savedInstanceState);
         Preference deleteEntry = findPreference(getString(R.string.delete_entry));
         Preference addEntry = findPreference(getString(R.string.add_entry));
+        Preference defaults = findPreference(getString(R.string.preferences_edittext_default));
+
+        assert defaults != null;
         assert deleteEntry != null;
         assert addEntry != null;
+
+        defaults.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+                dialog.setTitle("Reset links to default links?");
+
+                dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ((MainActivity) Objects.requireNonNull(getActivity())).deleteListFromPreferences();
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                dialog.show();
+                return true;
+            }
+        });
 
         addEntry.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override

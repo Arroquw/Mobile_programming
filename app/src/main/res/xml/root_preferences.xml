@@ -10,6 +10,13 @@
             android:title="@string/preferences_delete_title"
             android:summary="@string/delete_entry_summary"
             />
+
+        <Preference
+            android:key="@string/preferences_edittext_default"
+            android:title="Reset feed links"
+            android:summary="Reset the feed links list to default values"
+            />
+
         <Preference
             android:key="@string/add_entry"
             android:summary="@string/preferences_edittext_summ"

@@ -70,12 +70,12 @@ public class RssFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         assert activity != null;
         activity.updateTitle(rssTitle);
-        refreshData(getView(), rssString);
+        resetListener(getView(), rssString);
         final SwipeRefreshLayout pullToRefresh = Objects.requireNonNull(getActivity()).findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshData(Objects.requireNonNull(getView()), rssString); // your code
+                resetListener(Objects.requireNonNull(getView()), rssString); // your code
                 pullToRefresh.setRefreshing(false);
             }
         });
@@ -83,7 +83,7 @@ public class RssFragment extends Fragment {
 
     }
 
-    private void refreshData(View view, String link) {
+    private void resetListener(View view, String link) {
         listData = new ArrayList<>();
         RssDataController controller = new RssDataController(this);
         controller.execute(link);
@@ -223,16 +223,6 @@ public class RssFragment extends Fragment {
                                         }
                                     }
                                     break;
-                                case CONTENT:
-                                    if (content.length() != 0) {
-                                        if (pdData.rssContent != null) {
-                                            sb = new StringBuilder(pdData.rssContent);
-                                            sb.append(content);
-                                            pdData.rssContent = sb.toString();
-                                        } else {
-                                            pdData.rssContent = content;
-                                        }
-                                    }
                                 default:
                                     break;
                             }
