@@ -1,7 +1,11 @@
 package com.example.myfragmentapp.adapters;
+
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,27 +13,40 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.example.myfragmentapp.R;
 import com.example.myfragmentapp.models.RssData;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class RssItemAdapter extends ArrayAdapter<RssData> {
     private Activity myContext;
-    private ArrayList<RssData> datas;
+    private ArrayList<RssData> rssDataArrayList;
 
     public RssItemAdapter(Context context, int textViewResourceId,
-                   ArrayList<RssData> objects) {
+                          ArrayList<RssData> objects) {
         super(context, textViewResourceId, objects);
-        // TODO Auto-generated constructor stub
         myContext = (Activity) context;
-        datas = objects;
+        rssDataArrayList = objects;
+    }
+
+    static class ImageViewHolder {
+        String imageURL;
+        Bitmap bitmap;
+        ImageView imageView;
     }
 
     static class ViewHolder {
         TextView postTitleView;
         TextView postDateView;
-        ImageView postThumbView;
+        ImageViewHolder postThumbView;
+
+        ViewHolder() {
+            postThumbView = new ImageViewHolder();
+        }
     }
 
     @NonNull
@@ -38,28 +55,59 @@ public class RssItemAdapter extends ArrayAdapter<RssData> {
 
         if (convertView == null) {
             LayoutInflater inflater = myContext.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.rss_item, null);
+            convertView = inflater.inflate(R.layout.rss_item, parent, false);
 
             viewHolder = new ViewHolder();
-            viewHolder.postThumbView = (ImageView) convertView
+            viewHolder.postThumbView.imageView = convertView
                     .findViewById(R.id.postThumb);
-            viewHolder.postTitleView = (TextView) convertView
+            viewHolder.postTitleView = convertView
                     .findViewById(R.id.postTitleLabel);
-            viewHolder.postDateView = (TextView) convertView
+            viewHolder.postDateView = convertView
                     .findViewById(R.id.postDateLabel);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        if (datas.get(position).rssThumbUrl == null) {
-            viewHolder.postThumbView
+        if (rssDataArrayList.get(position).rssThumbUrl == null) {
+            viewHolder.postThumbView.imageView
                     .setImageResource(R.drawable.ic_menu_gallery);
+        } else {
+            viewHolder = (ViewHolder)convertView.getTag();
+            viewHolder.postThumbView.imageURL = rssDataArrayList.get(position).rssThumbUrl;
+            new DownloadAsyncTask().execute(viewHolder.postThumbView);
         }
 
-        viewHolder.postTitleView.setText(datas.get(position).rssTitle);
-        viewHolder.postDateView.setText(datas.get(position).rssDate);
+        viewHolder.postTitleView.setText(rssDataArrayList.get(position).rssTitle);
+        viewHolder.postDateView.setText(rssDataArrayList.get(position).rssDate);
 
         return convertView;
+    }
+
+    private static class DownloadAsyncTask extends AsyncTask<ImageViewHolder, Void, ImageViewHolder> {
+
+        @Override
+        protected ImageViewHolder doInBackground(ImageViewHolder... params) {
+            //load image directly
+            ImageViewHolder viewHolder = params[0];
+            try {
+                URL imageURL = new URL(viewHolder.imageURL);
+                viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+            } catch (IOException e) {
+                Log.e("error", "Downloading Image Failed");
+                viewHolder.bitmap = null;
+            }
+
+            return viewHolder;
+        }
+
+        @Override
+        protected void onPostExecute(ImageViewHolder result) {
+            if (result.bitmap == null) {
+                result.imageView.setImageResource(R.drawable.ic_launcher_foreground);
+            } else {
+                result.imageView.setImageBitmap(result.bitmap);
+            }
+        }
     }
 }

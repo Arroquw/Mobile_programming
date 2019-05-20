@@ -1,29 +1,50 @@
 package com.example.myfragmentapp;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.myfragmentapp.models.LinkItem;
+import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+/*            */
+
+public class MainActivity extends AppCompatActivity implements ToolbarTitleListener {
+    private Toolbar toolbar;
+    public static ArrayList<LinkItem> urls;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        if (!getListFromPreferences()) {
+            urls = new ArrayList<>(Arrays.asList(
+                    new LinkItem("LifeHacker RSS Feed", "https://lifehacker.com/rss"),
+                    new LinkItem("Google News Feed", "https://news.google.com/news/rss"),
+                    new LinkItem("BBC UK world news", "http://feeds.bbci.co.uk/news/world/rss.xml"),
+                    new LinkItem("New York times world news", "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml"),
+                    new LinkItem("The Guardian world news", "https://www.theguardian.com/world/rss"),
+                    new LinkItem("Reuters RSS Feed", "http://feeds.reuters.com/Reuters/worldNews"),
+                    new LinkItem("Independent UK world news", "http://www.independent.co.uk/news/world/rss")));
+        }
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         NavController navigationController = Navigation.findNavController(this, R.id.nav_host_fragment);
 
@@ -36,15 +57,6 @@ public class MainActivity extends AppCompatActivity {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
     }
 
     @Override
@@ -70,6 +82,35 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.onNavDestinationSelected(item, navController);
     }
+
+    public void saveListInPreferences() {
+        List<LinkItem> linkItems = urls;
+        String json = new Gson().toJson(linkItems);
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.add_entry), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(getString(R.string.add_entry), json);
+        editor.apply();
+    }
+
+    public boolean getListFromPreferences() {
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.add_entry), Context.MODE_PRIVATE);
+        if (prefs.contains(getString(R.string.add_entry))) {
+            String prefsString = prefs.getString(getString(R.string.add_entry), "");
+
+            List<LinkItem> linkItemList =
+                    new Gson().fromJson(prefsString, new TypeToken<List<LinkItem>>() {
+                    }.getType());
+            urls = (ArrayList<LinkItem>) linkItemList;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void updateTitle(String title) {
+        toolbar.setTitle(title);
+    }
+
 }
 
 

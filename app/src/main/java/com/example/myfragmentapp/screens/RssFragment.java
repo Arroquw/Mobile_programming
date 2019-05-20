@@ -3,8 +3,6 @@ package com.example.myfragmentapp.screens;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +10,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.myfragmentapp.MainActivity;
 import com.example.myfragmentapp.R;
 import com.example.myfragmentapp.adapters.RssItemAdapter;
 import com.example.myfragmentapp.models.RssData;
@@ -24,6 +26,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,10 +44,11 @@ public class RssFragment extends Fragment {
     private RssItemAdapter itemAdapter;
     //
 
-    public RssFragment(){}
+    public RssFragment() {
+    }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mContext = context;
     }
@@ -59,10 +63,30 @@ public class RssFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         assert getArguments() != null;
-        String rssString = RssFragmentArgs.fromBundle(getArguments()).getFeedLink();
+        RssFragmentArgs args = RssFragmentArgs.fromBundle(getArguments());
+        final String rssString = args.getFeedLink();
+        String rssTitle = args.getFeedTitle();
+
+        MainActivity activity = (MainActivity) getActivity();
+        assert activity != null;
+        activity.updateTitle(rssTitle);
+        refreshData(getView(), rssString);
+        final SwipeRefreshLayout pullToRefresh = Objects.requireNonNull(getActivity()).findViewById(R.id.pullToRefresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshData(Objects.requireNonNull(getView()), rssString); // your code
+                pullToRefresh.setRefreshing(false);
+            }
+        });
+
+
+    }
+
+    private void refreshData(View view, String link) {
         listData = new ArrayList<>();
-        RssDataController controller = new RssDataController();
-        controller.execute(rssString);
+        RssDataController controller = new RssDataController(this);
+        controller.execute(link);
         ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.rss_list_view);
         itemAdapter = new RssItemAdapter(mContext, R.layout.rss_item, listData);
         listView.setAdapter(itemAdapter);
@@ -74,33 +98,36 @@ public class RssFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                 long arg3) {
-            // TODO Auto-generated method
             RssData data;
             data = listData.get(arg2);
             RssFragmentDirections.ActionRssFragmentToRssViewFragment action;
 //            Bundle postInfo = new Bundle();
-            if(data.rssContent == null) {
-                action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssLink);
+            if (data.rssContent == null) {
+                action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssLink, data.rssTitle);
             } else {
-              action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssContent);
+                action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssContent, data.rssTitle);
             }
             NavHostFragment.findNavController(RssFragment.this).navigate(action);
         }
     };
 
     private enum RSSXMLTag {
-        TITLE, DATE, LINK, CONTENT, GUID, IGNORETAG;
+        TITLE, DATE, LINK, CONTENT, IGNORETAG
     }
 
-    private class RssDataController extends AsyncTask<String, Integer, ArrayList<RssData>> {
+    private static class RssDataController extends AsyncTask<String, Integer, ArrayList<RssData>> {
         private RSSXMLTag currentTag;
+        private WeakReference<RssFragment> fragmentReference;
+
+        RssDataController(RssFragment context) {
+            fragmentReference = new WeakReference<>(context);
+        }
 
         @Override
         protected ArrayList<RssData> doInBackground(String... params) {
-            // TODO Auto-generated method stub
             String urlStr = params[0];
-            InputStream is = null;
-            ArrayList<RssData> rssDataList = new ArrayList<RssData>();
+            InputStream is;
+            ArrayList<RssData> rssDataList = new ArrayList<>();
             try {
                 URL url = new URL(urlStr);
                 HttpURLConnection connection = (HttpURLConnection) url
@@ -124,11 +151,9 @@ public class RssFragment extends Fragment {
                 int eventType = xpp.getEventType();
                 RssData pdData = null;
                 SimpleDateFormat dateFormat = new SimpleDateFormat(
-                        "EEE, DD MMM yyyy HH:mm:ss", Locale.getDefault());
+                        "EEE, dd MMM yyyy HH:mm:ss", Locale.getDefault());
                 while (eventType != XmlPullParser.END_DOCUMENT) {
-                    if (eventType == XmlPullParser.START_DOCUMENT) {
-
-                    } else if (eventType == XmlPullParser.START_TAG) {
+                    if (eventType == XmlPullParser.START_TAG) {
                         switch (xpp.getName()) {
                             case "item":
                                 pdData = new RssData();
@@ -162,12 +187,15 @@ public class RssFragment extends Fragment {
                         String content = xpp.getText();
                         content = content.trim();
                         Log.d("debug", content);
+                        StringBuilder sb;
                         if (pdData != null) {
                             switch (currentTag) {
                                 case TITLE:
                                     if (content.length() != 0) {
                                         if (pdData.rssTitle != null) {
-                                            pdData.rssTitle += content;
+                                            sb = new StringBuilder(pdData.rssTitle);
+                                            sb.append(content);
+                                            pdData.rssTitle = sb.toString();
                                         } else {
                                             pdData.rssTitle = content;
                                         }
@@ -176,7 +204,9 @@ public class RssFragment extends Fragment {
                                 case LINK:
                                     if (content.length() != 0) {
                                         if (pdData.rssLink != null) {
-                                            pdData.rssLink += content;
+                                            sb = new StringBuilder(pdData.rssLink);
+                                            sb.append(content);
+                                            pdData.rssLink = sb.toString();
                                         } else {
                                             pdData.rssLink = content;
                                         }
@@ -185,7 +215,9 @@ public class RssFragment extends Fragment {
                                 case DATE:
                                     if (content.length() != 0) {
                                         if (pdData.rssDate != null) {
-                                            pdData.rssDate += content;
+                                            sb = new StringBuilder(pdData.rssDate);
+                                            sb.append(content);
+                                            pdData.rssDate = sb.toString();
                                         } else {
                                             pdData.rssDate = content;
                                         }
@@ -194,7 +226,9 @@ public class RssFragment extends Fragment {
                                 case CONTENT:
                                     if (content.length() != 0) {
                                         if (pdData.rssContent != null) {
-                                            pdData.rssContent += content;
+                                            sb = new StringBuilder(pdData.rssContent);
+                                            sb.append(content);
+                                            pdData.rssContent = sb.toString();
                                         } else {
                                             pdData.rssContent = content;
                                         }
@@ -204,21 +238,22 @@ public class RssFragment extends Fragment {
                             }
                         }
                     }
-
+                    if (currentTag == RSSXMLTag.CONTENT) {
+                        assert pdData != null;
+                        if (xpp.getAttributeCount() > 0) {
+                            pdData.rssThumbUrl = xpp.getAttributeValue(0);
+                        }
+                    }
                     eventType = xpp.next();
                 }
                 Log.v("tst", String.valueOf((rssDataList.size())));
             } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (ParseException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -227,12 +262,11 @@ public class RssFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<RssData> result) {
-            // TODO Auto-generated method stub
-            for (int i = 0; i < result.size(); i++) {
-                listData.add(result.get(i));
-            }
+            RssFragment fragment = fragmentReference.get();
 
-            itemAdapter.notifyDataSetChanged();
+            fragment.listData.addAll(result);
+
+            fragment.itemAdapter.notifyDataSetChanged();
         }
     }
 }

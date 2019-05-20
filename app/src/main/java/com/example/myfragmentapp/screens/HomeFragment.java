@@ -1,10 +1,10 @@
 package com.example.myfragmentapp.screens;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,33 +15,35 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.myfragmentapp.MainActivity;
 import com.example.myfragmentapp.R;
 import com.example.myfragmentapp.adapters.LinkItemAdapter;
 import com.example.myfragmentapp.models.LinkItem;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import static com.example.myfragmentapp.MainActivity.urls;
 
 public class HomeFragment extends Fragment {
+    private LinkItemAdapter itemAdapter;
+    private ListView listView;
 
-    private ArrayList<LinkItem> urls = new ArrayList<>(Arrays.asList(
-            new LinkItem("Lifehacker RSS Feed", "https://lifehacker.com/rss"),
-            new LinkItem("Google News Feed", "https://news.google.com/news/rss"),
-            new LinkItem("BBC UK world news", "http://feeds.bbci.co.uk/news/world/rss.xml"),
-            new LinkItem("New York times world news", "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml"),
-            new LinkItem("The Guardian world news", "https://www.theguardian.com/world/rss"),
-            new LinkItem("Reuters RSS Feed", "http://feeds.reuters.com/Reuters/worldNews"),
-            new LinkItem("Independent UK world news", "http://www.independent.co.uk/news/world/rss")));
+    public HomeFragment() {
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        ListView listView = view.findViewById(R.id.postListView);
-        //ArrayAdapter<String> itemAdapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()), R.layout.link_item, urls);
-        LinkItemAdapter itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);
+        ((MainActivity) Objects.requireNonNull(getActivity())).saveListInPreferences();
+        listView = view.findViewById(R.id.postListView);
+        itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);
         listView.setAdapter(itemAdapter);
         listView.setOnItemClickListener(onItemClickListener);
         return view;
@@ -64,23 +66,44 @@ public class HomeFragment extends Fragment {
                         String message = input.getText().toString();
                         if (Patterns.WEB_URL.matcher(message.toLowerCase()).matches() && message.toLowerCase().contains("rss")) {
                             HomeFragmentDirections.ActionHomeFragmentToRssFragment action =
-                                    HomeFragmentDirections.actionHomeFragmentToRssFragment(message);
+                                    HomeFragmentDirections.actionHomeFragmentToRssFragment(message, "Custom RSS Link");
                             NavHostFragment.findNavController(HomeFragment.this).navigate(action);
                         } else {
                             Toast.makeText(getActivity(), "custom RSS link invalid!", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
+
                 alert.show();
             }
         });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((MainActivity) Objects.requireNonNull(getActivity())).saveListInPreferences();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) Objects.requireNonNull(getActivity())).getListFromPreferences();
+
+        if (itemAdapter != null) itemAdapter.notifyDataSetChanged();
+        else {
+            itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);
+            listView.setAdapter(itemAdapter);
+            listView.setOnItemClickListener(onItemClickListener);
+        }
+
     }
 
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             HomeFragmentDirections.ActionHomeFragmentToRssFragment action =
-                    HomeFragmentDirections.actionHomeFragmentToRssFragment(urls.get(position).Link);
+                    HomeFragmentDirections.actionHomeFragmentToRssFragment(urls.get(position).Link, urls.get(position).Title);
             NavHostFragment.findNavController(HomeFragment.this).navigate(action);
         }
     };

@@ -2,12 +2,13 @@ package com.example.myfragmentapp.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.example.myfragmentapp.R;
 import com.example.myfragmentapp.models.LinkItem;
@@ -16,15 +17,15 @@ import java.util.ArrayList;
 
 public class LinkItemAdapter extends ArrayAdapter<LinkItem> {
     private Activity myContext;
-    private ArrayList<LinkItem> datas;
+    private ArrayList<LinkItem> linkItemArrayList;
 
     public LinkItemAdapter(Context context, int textViewResourceId,
-                   ArrayList<LinkItem> objects) {
+                           ArrayList<LinkItem> objects) {
         super(context, textViewResourceId, objects);
-        // TODO Auto-generated constructor stub
         myContext = (Activity) context;
-        datas = objects;
+        linkItemArrayList = objects;
     }
+
     static class ViewHolder {
         TextView titleView;
         TextView linkView;
@@ -36,21 +37,20 @@ public class LinkItemAdapter extends ArrayAdapter<LinkItem> {
 
         if (convertView == null) {
             LayoutInflater inflater = myContext.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.link_item, null);
+            convertView = inflater.inflate(R.layout.link_item, parent, false);
 
             viewHolder = new LinkItemAdapter.ViewHolder();
-            viewHolder.titleView = (TextView) convertView
+            viewHolder.titleView = convertView
                     .findViewById(R.id.itemTitle);
-            viewHolder.linkView = (TextView) convertView
+            viewHolder.linkView = convertView
                     .findViewById(R.id.itemLink);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (LinkItemAdapter.ViewHolder) convertView.getTag();
         }
 
-
-        viewHolder.titleView.setText(datas.get(position).Title);
-        viewHolder.linkView.setText(datas.get(position).Link);
+        viewHolder.titleView.setText(linkItemArrayList.get(position).Title);
+        viewHolder.linkView.setText(linkItemArrayList.get(position).Link);
 
         return convertView;
     }

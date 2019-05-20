@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".screens.HomeFragment"
-    android:orientation="vertical">
-
+    android:orientation="vertical"
+    android:id="@+id/fragment_home">
 
     <Button
         android:id="@+id/button2"
@@ -19,7 +20,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
     <ListView
         android:id="@+id/postListView"
         android:layout_width="347dp"
@@ -34,6 +34,4 @@
         app:layout_constraintTop_toBottomOf="@+id/button2">
 
     </ListView>
-
-
-</android.support.v7.widget.LinearLayoutCompat>
+</androidx.appcompat.widget.LinearLayoutCompat>

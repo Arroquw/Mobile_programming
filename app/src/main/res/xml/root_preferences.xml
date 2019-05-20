@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/preferences_category_one">
+
+        <Preference
+            android:key="@string/delete_entry"
+            android:title="@string/preferences_delete_title"
+            android:summary="@string/delete_entry_summary"
+            />
+        <Preference
+            android:key="@string/add_entry"
+            android:summary="@string/preferences_edittext_summ"
+            android:title="@string/preferences_edittext_title"/>
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
