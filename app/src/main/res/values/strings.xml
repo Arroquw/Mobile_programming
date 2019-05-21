@@ -30,4 +30,5 @@
     <string name="delete_entry" translatable="false">delete_entry</string>
     <string name="add_entry" translatable="false">add_entry</string>
     <string name="delete_entry_summary">Choose a feed to delete</string>
+    <string name="share_link">share link</string>
 </resources>

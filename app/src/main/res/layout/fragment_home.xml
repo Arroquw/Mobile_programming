@@ -1,37 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".screens.HomeFragment"
-    android:orientation="vertical"
-    android:id="@+id/fragment_home">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="261dp"
-        android:layout_height="60dp"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_height="match_parent" android:layout_width="match_parent"
+    >
+
+    <LinearLayout
+        android:id="@+id/fragment_home"
+        android:layout_width="match_parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/custom_link"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    <ListView
-        android:id="@+id/postListView"
-        android:layout_width="347dp"
-        android:layout_height="583dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".screens.HomeFragment"
+        android:layout_height="0dp">
+
+        <ListView
+            android:id="@+id/postListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2">
+        app:layout_constraintStart_toStartOf="parent">
 
-    </ListView>
-</androidx.appcompat.widget.LinearLayoutCompat>
+        <Button
+            android:id="@+id/button2"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="@string/custom_link" />
+
+        <Button
+            android:id="@+id/button4"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="@string/share_link"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
