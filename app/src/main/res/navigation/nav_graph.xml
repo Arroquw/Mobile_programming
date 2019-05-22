@@ -6,7 +6,7 @@
     app:startDestination="@id/homeFragment">
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.myfragmentapp.screens.HomeFragment"
+        android:name="com.example.rssreader.screens.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/rssViewFragment"
-        android:name="com.example.myfragmentapp.screens.RssViewFragment"
+        android:name="com.example.rssreader.screens.RssViewFragment"
         android:label="fragment_rss_view"
         tools:layout="@layout/fragment_rss_view" >
         <argument android:name="rssLink"
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/rssFragment"
-        android:name="com.example.myfragmentapp.screens.RssFragment"
+        android:name="com.example.rssreader.screens.RssFragment"
         android:label="rss_list"
         tools:layout="@layout/rss_list" >
         <action
@@ -42,7 +42,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.myfragmentapp.screens.SettingsFragment"
+        android:name="com.example.rssreader.screens.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" >
         <action
