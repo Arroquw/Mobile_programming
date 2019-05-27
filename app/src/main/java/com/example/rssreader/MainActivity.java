@@ -37,10 +37,10 @@ public class MainActivity extends AppCompatActivity implements ToolbarTitleListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (!getListFromPreferences()) {
             setListToDefaults();
         }
-
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

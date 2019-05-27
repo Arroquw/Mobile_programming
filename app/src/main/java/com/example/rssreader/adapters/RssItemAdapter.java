@@ -104,7 +104,7 @@ public class RssItemAdapter extends ArrayAdapter<RssData> {
         @Override
         protected void onPostExecute(ImageViewHolder result) {
             if (result.bitmap == null) {
-                result.imageView.setImageResource(R.drawable.ic_launcher_foreground);
+                result.imageView.setImageResource(R.drawable.ic_menu_gallery);
             } else {
                 result.imageView.setImageBitmap(result.bitmap);
             }

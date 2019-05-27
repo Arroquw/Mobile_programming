@@ -120,7 +120,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 AlertDialog.Builder builderSingle = new AlertDialog.Builder(getActivity());
-                builderSingle.setIcon(R.drawable.ic_launcher_foreground);
+                builderSingle.setIcon(R.drawable.ic_menu_gallery);
                 builderSingle.setTitle("Select One Name:-");
 
                 final LinkItemAdapter arrayAdapter = new LinkItemAdapter(Objects.requireNonNull(getActivity()), R.id.postListView, MainActivity.urls);

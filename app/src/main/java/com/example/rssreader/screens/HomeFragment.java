@@ -20,8 +20,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.rssreader.MainActivity;
 import com.example.rssreader.R;
 import com.example.rssreader.adapters.LinkItemAdapter;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.Objects;
 import static com.example.rssreader.MainActivity.urls;
