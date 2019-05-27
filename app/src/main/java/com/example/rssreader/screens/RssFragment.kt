@@ -34,9 +34,6 @@ import java.util.ArrayList
 import java.util.Locale
 import java.util.Objects
 
-
-//
-
 class RssFragment : Fragment() {
     private var listData: ArrayList<RssData>? = null
     private var mContext: Context? = null
@@ -77,15 +74,13 @@ class RssFragment : Fragment() {
             resetListener(rssString) // your code
             pullToRefresh.isRefreshing = false
         }
-
-
     }
 
     private fun resetListener(link: String) {
         listData = ArrayList()
         val controller = RssDataController(this)
         controller.execute(link)
-        val listView = Objects.requireNonNull<View>(view).findViewById<ListView>(R.id.rss_list_view)
+        val listView = rss_list_view
         itemAdapter = mContext?.let { RssItemAdapter(it, R.layout.rss_item, listData!!) }
         listView.adapter = itemAdapter
         listView.onItemClickListener = onItemClickListener
@@ -101,7 +96,7 @@ class RssFragment : Fragment() {
 
         override fun doInBackground(vararg params: String): ArrayList<RssData> {
             val urlStr = params[0]
-            val `is`: InputStream
+            val stream: InputStream
             val rssDataList = ArrayList<RssData>()
             try {
                 val url = URL(urlStr)
@@ -114,14 +109,14 @@ class RssFragment : Fragment() {
                 connection.connect()
                 val response = connection.responseCode
                 Log.d("debug", "The response is: $response")
-                `is` = connection.inputStream
+                stream = connection.inputStream
 
                 // parse xml after getting the data
                 val factory = XmlPullParserFactory
                         .newInstance()
                 factory.isNamespaceAware = true
                 val xpp = factory.newPullParser()
-                xpp.setInput(`is`, null)
+                xpp.setInput(stream, null)
 
                 var eventType = xpp.eventType
                 var pdData: RssData? = null

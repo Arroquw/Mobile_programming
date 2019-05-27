@@ -20,6 +20,8 @@ import com.example.rssreader.models.LinkItem
 import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 
 import java.util.ArrayList
 import java.util.Arrays
@@ -27,7 +29,6 @@ import java.util.Arrays
 /*            */
 
 class MainActivity : AppCompatActivity(), ToolbarTitleListener {
-    private var toolbar: Toolbar? = null
 
     val listFromPreferences: Boolean
         get() {
@@ -35,9 +36,7 @@ class MainActivity : AppCompatActivity(), ToolbarTitleListener {
             if (prefs.contains(getString(R.string.add_entry))) {
                 val prefsString = prefs.getString(getString(R.string.add_entry), "")
 
-                val linkItemList = Gson().fromJson<List<LinkItem>>(prefsString, object : TypeToken<List<LinkItem>>() {
-
-                }.type)
+                val linkItemList = Gson().fromJson<List<LinkItem>>(prefsString, object : TypeToken<List<LinkItem>>() {}.type)
                 urls = linkItemList as ArrayList<LinkItem>
                 return true
             }
@@ -57,13 +56,12 @@ class MainActivity : AppCompatActivity(), ToolbarTitleListener {
                     LinkItem("Reuters RSS Feed", "http://feeds.reuters.com/Reuters/worldNews"),
                     LinkItem("Independent UK world news", "http://www.independent.co.uk/news/world/rss")))
         }
-        toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         val navigationController = Navigation.findNavController(this, R.id.nav_host_fragment)
 
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val drawer = drawer_layout
 
-        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        val navigationView = nav_view
         NavigationUI.setupActionBarWithNavController(this, navigationController, drawer)
         NavigationUI.setupWithNavController(navigationView, navigationController)
 
@@ -73,7 +71,7 @@ class MainActivity : AppCompatActivity(), ToolbarTitleListener {
     }
 
     override fun onBackPressed() {
-        val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val drawer = drawer_layout
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START)
         } else {
@@ -82,7 +80,7 @@ class MainActivity : AppCompatActivity(), ToolbarTitleListener {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(Navigation.findNavController(this, R.id.nav_host_fragment), findViewById<View>(R.id.drawer_layout) as DrawerLayout)
+        return NavigationUI.navigateUp(Navigation.findNavController(this, R.id.nav_host_fragment), drawer_layout as DrawerLayout)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

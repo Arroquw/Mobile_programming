@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         (Objects.requireNonNull<FragmentActivity>(activity) as MainActivity).saveListInPreferences()
-        listView = view.findViewById(R.id.postListView)
+        listView = postListView
         itemAdapter = activity?.let { urls?.let { it1 -> LinkItemAdapter(it, R.layout.link_item, it1) } }
         listView!!.adapter = itemAdapter
         listView!!.onItemClickListener = onItemClickListener
