@@ -50,7 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ((MainActivity) getActivity()).deleteListFromPreferences();
+                        ((MainActivity) Objects.requireNonNull(getActivity())).deleteListFromPreferences();
                         ((MainActivity) getActivity()).setListToDefaults();
                         dialog.dismiss();
                     }
@@ -83,12 +83,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
                 final EditText titleBox = new EditText(context);
                 titleBox.setHint("Title");
-                layout.addView(titleBox); // Notice this is an add method
+                layout.addView(titleBox);
 
                 final EditText linkBox = new EditText(context);
                 linkBox.setHint("Link");
-                layout.addView(linkBox); // Another add method
-                dialog.setView(layout); // Again this is a set method, not add
+                layout.addView(linkBox);
+                dialog.setView(layout);
 
                 dialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override

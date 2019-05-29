@@ -82,7 +82,6 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((MainActivity) Objects.requireNonNull(getActivity())).getListFromPreferences();
-
         if (itemAdapter != null) itemAdapter.notifyDataSetChanged();
         else {
             itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);

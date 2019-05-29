@@ -9,9 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -42,6 +46,7 @@ public class RssFragment extends Fragment {
     private ArrayList<RssData> listData;
     private Context mContext;
     private RssItemAdapter itemAdapter;
+    private ProgressBar progressBar;
     //
 
     public RssFragment() {
@@ -62,6 +67,7 @@ public class RssFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        progressBar = getActivity().findViewById(R.id.progressBar);
         assert getArguments() != null;
         RssFragmentArgs args = RssFragmentArgs.fromBundle(getArguments());
         final String rssString = args.getFeedLink();
@@ -79,11 +85,10 @@ public class RssFragment extends Fragment {
                 pullToRefresh.setRefreshing(false);
             }
         });
-
-
     }
 
     private void resetListener(View view, String link) {
+        progressBar.setVisibility(View.VISIBLE);
         listData = new ArrayList<>();
         RssDataController controller = new RssDataController(this);
         controller.execute(link);
@@ -128,7 +133,10 @@ public class RssFragment extends Fragment {
             String urlStr = params[0];
             InputStream is;
             ArrayList<RssData> rssDataList = new ArrayList<>();
+            RssFragment fragment = fragmentReference.get();
+            int progress = 0;
             try {
+                progress++;
                 URL url = new URL(urlStr);
                 HttpURLConnection connection = (HttpURLConnection) url
                         .openConnection();
@@ -153,6 +161,7 @@ public class RssFragment extends Fragment {
                 SimpleDateFormat dateFormat = new SimpleDateFormat(
                         "EEE, dd MMM yyyy HH:mm:ss", Locale.getDefault());
                 while (eventType != XmlPullParser.END_DOCUMENT) {
+                    fragment.progressBar.setProgress(progress++);
                     if (eventType == XmlPullParser.START_TAG) {
                         switch (xpp.getName()) {
                             case "item":
@@ -246,14 +255,16 @@ public class RssFragment extends Fragment {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
+            fragment.progressBar.setVisibility(View.INVISIBLE);
             return rssDataList;
         }
 
         @Override
         protected void onPostExecute(ArrayList<RssData> result) {
             RssFragment fragment = fragmentReference.get();
-
+            if(result.isEmpty()) {
+                Toast.makeText(fragment.getActivity(), "Error retrieving data from link!", Toast.LENGTH_SHORT).show();
+            }
             fragment.listData.addAll(result);
 
             fragment.itemAdapter.notifyDataSetChanged();
