@@ -7,44 +7,50 @@ import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rssreader.MainActivity;
 import com.example.rssreader.R;
 import com.example.rssreader.adapters.LinkItemAdapter;
+import com.example.rssreader.models.LinkItem;
 
 import java.util.Objects;
 import static com.example.rssreader.MainActivity.urls;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements LinkItemAdapter.LinkItemOnItemClickHandler {
     private LinkItemAdapter itemAdapter;
-    private ListView listView;
+    private RecyclerView recyclerView;
 
     public HomeFragment() {
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        ((MainActivity) Objects.requireNonNull(getActivity())).saveListInPreferences();
-        listView = view.findViewById(R.id.postListView);
-        itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);
-        listView.setAdapter(itemAdapter);
-        listView.setOnItemClickListener(onItemClickListener);
-        return view;
+
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        ((MainActivity) Objects.requireNonNull(getActivity())).saveListInPreferences();
+        recyclerView = getActivity().findViewById(R.id.postListView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        itemAdapter = new LinkItemAdapter(urls, this);
+        recyclerView.setAdapter(itemAdapter);
+        recyclerView.setHasFixedSize(true);
+
+        itemAdapter.notifyDataSetChanged();
+
         Button button1 = Objects.requireNonNull(getActivity()).findViewById(R.id.button2);
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,19 +90,17 @@ public class HomeFragment extends Fragment {
         ((MainActivity) Objects.requireNonNull(getActivity())).getListFromPreferences();
         if (itemAdapter != null) itemAdapter.notifyDataSetChanged();
         else {
-            itemAdapter = new LinkItemAdapter(getActivity(), R.layout.link_item, urls);
-            listView.setAdapter(itemAdapter);
-            listView.setOnItemClickListener(onItemClickListener);
+            itemAdapter = new LinkItemAdapter(urls, this);
+            recyclerView.setAdapter(itemAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
 
     }
 
-    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            HomeFragmentDirections.ActionHomeFragmentToRssFragment action =
-                    HomeFragmentDirections.actionHomeFragmentToRssFragment(urls.get(position).Link, urls.get(position).Title);
-            NavHostFragment.findNavController(HomeFragment.this).navigate(action);
-        }
-    };
+    @Override
+    public void onItemClick(LinkItem item) {
+        HomeFragmentDirections.ActionHomeFragmentToRssFragment action =
+                HomeFragmentDirections.actionHomeFragmentToRssFragment(item.Link, item.Title);
+        NavHostFragment.findNavController(HomeFragment.this).navigate(action);
+    }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Patterns;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,9 +17,9 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.example.rssreader.MainActivity;
 import com.example.rssreader.R;
-import com.example.rssreader.adapters.LinkItemAdapter;
 import com.example.rssreader.models.LinkItem;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -123,7 +124,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 builderSingle.setIcon(R.drawable.ic_menu_gallery);
                 builderSingle.setTitle("Select One Name:-");
 
-                final LinkItemAdapter arrayAdapter = new LinkItemAdapter(Objects.requireNonNull(getActivity()), R.id.postListView, MainActivity.urls);
+                ArrayList<String> newArray = new ArrayList<>();
+                for (LinkItem i :
+                     MainActivity.urls) {
+                    newArray.add(i.Title);
+                }
+
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(Objects.requireNonNull(getActivity()), R.layout.settings_list_item, newArray);
 
                 builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -136,9 +143,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         final int index = which;
-                        LinkItem strName = arrayAdapter.getItem(which);
+                        String strName = arrayAdapter.getItem(which);
                         AlertDialog.Builder builderInner = new AlertDialog.Builder(getActivity());
-                        builderInner.setMessage(strName != null ? strName.Title : "error");
+                        builderInner.setMessage(strName != null ? strName : "error");
                         builderInner.setTitle("Your Selected Item to delete is");
                         builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override

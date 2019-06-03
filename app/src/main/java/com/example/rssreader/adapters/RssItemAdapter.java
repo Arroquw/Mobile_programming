@@ -1,6 +1,5 @@
 package com.example.rssreader.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,11 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rssreader.R;
 import com.example.rssreader.models.RssData;
@@ -22,15 +21,77 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class RssItemAdapter extends ArrayAdapter<RssData> {
-    private Activity myContext;
+public class RssItemAdapter extends RecyclerView.Adapter<RssItemAdapter.ViewHolder> {
     private ArrayList<RssData> rssDataArrayList;
+    private final RssOnItemClickHandler mClickHandler;
 
-    public RssItemAdapter(Context context, int textViewResourceId,
-                          ArrayList<RssData> objects) {
-        super(context, textViewResourceId, objects);
-        myContext = (Activity) context;
-        rssDataArrayList = objects;
+    public RssItemAdapter(ArrayList<RssData> list, RssOnItemClickHandler clickHandler) {
+        rssDataArrayList = list;
+        mClickHandler = clickHandler;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.rss_item, parent, false);
+
+        // Inflate the custom layout
+        // Return a new holder instance
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // Get the data model based on position
+        RssData data = rssDataArrayList.get(position);
+
+        // Set item views based on your views and data model
+        TextView titleView = holder.postTitleView;
+        titleView.setText(data.rssTitle);
+
+        TextView dateView = holder.postDateView;
+        dateView.setText(data.rssDate);
+
+        ImageViewHolder image = holder.postThumbView;
+        image.imageURL = data.rssThumbUrl;
+
+        if (data.rssThumbUrl == null) {
+            image.imageView
+                    .setImageResource(R.drawable.ic_menu_gallery);
+        } else {
+
+            image.imageURL = data.rssThumbUrl;
+            new DownloadAsyncTask().execute(image);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return rssDataArrayList.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView postTitleView;
+        TextView postDateView;
+        ImageViewHolder postThumbView;
+
+        ViewHolder(View v) {
+            super(v);
+            postTitleView = v.findViewById(R.id.postTitleLabel);
+            postDateView = v.findViewById(R.id.postDateLabel);
+            postThumbView = new ImageViewHolder();
+            postThumbView.imageView = v.findViewById(R.id.postThumb);
+            v.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int pos = getAdapterPosition();
+            RssData data = rssDataArrayList.get(pos);
+            mClickHandler.onItemClick(data);
+        }
     }
 
     static class ImageViewHolder {
@@ -39,49 +100,8 @@ public class RssItemAdapter extends ArrayAdapter<RssData> {
         ImageView imageView;
     }
 
-    static class ViewHolder {
-        TextView postTitleView;
-        TextView postDateView;
-        ImageViewHolder postThumbView;
-
-        ViewHolder() {
-            postThumbView = new ImageViewHolder();
-        }
-    }
-
-    @NonNull
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        ViewHolder viewHolder;
-
-        if (convertView == null) {
-            LayoutInflater inflater = myContext.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.rss_item, parent, false);
-
-            viewHolder = new ViewHolder();
-            viewHolder.postThumbView.imageView = convertView
-                    .findViewById(R.id.postThumb);
-            viewHolder.postTitleView = convertView
-                    .findViewById(R.id.postTitleLabel);
-            viewHolder.postDateView = convertView
-                    .findViewById(R.id.postDateLabel);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        if (rssDataArrayList.get(position).rssThumbUrl == null) {
-            viewHolder.postThumbView.imageView
-                    .setImageResource(R.drawable.ic_menu_gallery);
-        } else {
-            viewHolder = (ViewHolder)convertView.getTag();
-            viewHolder.postThumbView.imageURL = rssDataArrayList.get(position).rssThumbUrl;
-            new DownloadAsyncTask().execute(viewHolder.postThumbView);
-        }
-
-        viewHolder.postTitleView.setText(rssDataArrayList.get(position).rssTitle);
-        viewHolder.postDateView.setText(rssDataArrayList.get(position).rssDate);
-
-        return convertView;
+    public interface RssOnItemClickHandler {
+        void onItemClick(RssData data);
     }
 
     private static class DownloadAsyncTask extends AsyncTask<ImageViewHolder, Void, ImageViewHolder> {
@@ -110,4 +130,6 @@ public class RssItemAdapter extends ArrayAdapter<RssData> {
             }
         }
     }
+
+
 }

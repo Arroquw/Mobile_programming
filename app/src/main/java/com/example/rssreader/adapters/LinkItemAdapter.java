@@ -1,57 +1,72 @@
 package com.example.rssreader.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rssreader.R;
 import com.example.rssreader.models.LinkItem;
 
 import java.util.ArrayList;
 
-public class LinkItemAdapter extends ArrayAdapter<LinkItem> {
-    private Activity myContext;
+public class LinkItemAdapter extends RecyclerView.Adapter<LinkItemAdapter.ViewHolder> {
     private ArrayList<LinkItem> linkItemArrayList;
+    private final LinkItemOnItemClickHandler mLinkItemOnItemClickHandler;
 
-    public LinkItemAdapter(Context context, int textViewResourceId,
-                           ArrayList<LinkItem> objects) {
-        super(context, textViewResourceId, objects);
-        myContext = (Activity) context;
+    public LinkItemAdapter(ArrayList<LinkItem> objects, LinkItemOnItemClickHandler linkItemOnItemClickHandler) {
         linkItemArrayList = objects;
-    }
-
-    static class ViewHolder {
-        TextView titleView;
-        TextView linkView;
+        mLinkItemOnItemClickHandler = linkItemOnItemClickHandler;
     }
 
     @NonNull
-    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-        LinkItemAdapter.ViewHolder viewHolder;
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Context context = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.link_item, parent, false);
 
-        if (convertView == null) {
-            LayoutInflater inflater = myContext.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.link_item, parent, false);
+        // Inflate the custom layout
+        // Return a new holder instance
+        return new ViewHolder(v);
+    }
 
-            viewHolder = new LinkItemAdapter.ViewHolder();
-            viewHolder.titleView = convertView
-                    .findViewById(R.id.itemTitle);
-            viewHolder.linkView = convertView
-                    .findViewById(R.id.itemLink);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (LinkItemAdapter.ViewHolder) convertView.getTag();
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        LinkItem item = linkItemArrayList.get(position);
+        holder.titleView.setText(item.Title);
+        holder.linkView.setText(item.Link);
+    }
+
+    @Override
+    public int getItemCount() {
+        return linkItemArrayList.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        TextView titleView;
+        TextView linkView;
+
+        ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            titleView = itemView.findViewById(R.id.itemTitle);
+            linkView = itemView.findViewById(R.id.itemLink);
+            itemView.setOnClickListener(this);
         }
 
-        viewHolder.titleView.setText(linkItemArrayList.get(position).Title);
-        viewHolder.linkView.setText(linkItemArrayList.get(position).Link);
+        @Override
+        public void onClick(View v) {
+            int pos = getAdapterPosition();
+            LinkItem item = linkItemArrayList.get(pos);
+            mLinkItemOnItemClickHandler.onItemClick(item);
+        }
+    }
 
-        return convertView;
+    public interface LinkItemOnItemClickHandler {
+        void onItemClick(LinkItem item);
     }
 }

@@ -7,14 +7,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.rssreader.MainActivity;
@@ -40,9 +40,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 
-public class RssFragment extends Fragment {
+public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemClickHandler {
     private ArrayList<RssData> listData;
-    private Context mContext;
     private RssItemAdapter itemAdapter;
     private ProgressBar progressBar;
     //
@@ -53,7 +52,6 @@ public class RssFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mContext = context;
     }
 
     @Override
@@ -88,31 +86,24 @@ public class RssFragment extends Fragment {
     private void resetListener(String link) {
         progressBar.setVisibility(View.VISIBLE);
         listData = new ArrayList<>();
-        RssDataController controller = new RssDataController(this);
-        controller.execute(link);
-        ListView listView = Objects.requireNonNull(getView()).findViewById(R.id.rss_list_view);
-        itemAdapter = new RssItemAdapter(mContext, R.layout.rss_item, listData);
-        listView.setAdapter(itemAdapter);
-        listView.setOnItemClickListener(onItemClickListener);
+        new RssDataController(this).execute(link);
+        RecyclerView recyclerView = Objects.requireNonNull(getView()).findViewById(R.id.rss_list_view);
+        itemAdapter = new RssItemAdapter(listData, this);
+        recyclerView.setAdapter(itemAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
-    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-
-        @Override
-        public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-                                long arg3) {
-            RssData data;
-            data = listData.get(arg2);
-            RssFragmentDirections.ActionRssFragmentToRssViewFragment action;
+    @Override
+    public void onItemClick(RssData data) {
+        RssFragmentDirections.ActionRssFragmentToRssViewFragment action;
 //            Bundle postInfo = new Bundle();
-            if (data.rssContent == null) {
-                action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssLink, data.rssTitle);
-            } else {
-                action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssContent, data.rssTitle);
-            }
-            NavHostFragment.findNavController(RssFragment.this).navigate(action);
+        if (data.rssContent == null) {
+            action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssLink, data.rssTitle);
+        } else {
+            action = RssFragmentDirections.actionRssFragmentToRssViewFragment(data.rssContent, data.rssTitle);
         }
-    };
+        NavHostFragment.findNavController(RssFragment.this).navigate(action);
+    }
 
     private enum RSSXMLTag {
         TITLE, DATE, LINK, CONTENT, IGNORETAG
