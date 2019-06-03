@@ -10,12 +10,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -67,7 +65,7 @@ public class RssFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        progressBar = getActivity().findViewById(R.id.progressBar);
+        progressBar = Objects.requireNonNull(getActivity()).findViewById(R.id.progressBar);
         assert getArguments() != null;
         RssFragmentArgs args = RssFragmentArgs.fromBundle(getArguments());
         final String rssString = args.getFeedLink();
@@ -76,18 +74,18 @@ public class RssFragment extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         assert activity != null;
         activity.updateTitle(rssTitle);
-        resetListener(getView(), rssString);
+        resetListener(rssString);
         final SwipeRefreshLayout pullToRefresh = Objects.requireNonNull(getActivity()).findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                resetListener(Objects.requireNonNull(getView()), rssString); // your code
+                resetListener(rssString); // your code
                 pullToRefresh.setRefreshing(false);
             }
         });
     }
 
-    private void resetListener(View view, String link) {
+    private void resetListener(String link) {
         progressBar.setVisibility(View.VISIBLE);
         listData = new ArrayList<>();
         RssDataController controller = new RssDataController(this);
