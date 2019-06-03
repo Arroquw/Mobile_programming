@@ -122,7 +122,7 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
             String urlStr = params[0];
             InputStream is;
             ArrayList<RssData> rssDataList = new ArrayList<>();
-            RssFragment fragment = fragmentReference.get();
+
             int progress = 0;
             try {
                 progress++;
@@ -150,7 +150,6 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
                 SimpleDateFormat dateFormat = new SimpleDateFormat(
                         "EEE, dd MMM yyyy HH:mm:ss", Locale.getDefault());
                 while (eventType != XmlPullParser.END_DOCUMENT) {
-                    fragment.progressBar.setProgress(progress++);
                     if (eventType == XmlPullParser.START_TAG) {
                         switch (xpp.getName()) {
                             case "item":
@@ -232,6 +231,7 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
                             pdData.rssThumbUrl = xpp.getAttributeValue(0);
                         }
                     }
+                    publishProgress(progress++);
                     eventType = xpp.next();
                 }
                 Log.v("tst", String.valueOf((rssDataList.size())));
@@ -244,13 +244,22 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            fragment.progressBar.setVisibility(View.INVISIBLE);
+
             return rssDataList;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<RssData> result) {
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
             RssFragment fragment = fragmentReference.get();
+            fragment.progressBar.setProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<RssData> result) {
+
+            RssFragment fragment = fragmentReference.get();
+            fragment.progressBar.setVisibility(View.INVISIBLE);
             if(result.isEmpty()) {
                 Toast.makeText(fragment.getActivity(), "Error retrieving data from link!", Toast.LENGTH_SHORT).show();
             }
