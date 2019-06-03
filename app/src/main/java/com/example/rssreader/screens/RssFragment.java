@@ -3,7 +3,6 @@ package com.example.rssreader.screens;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,8 +133,6 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
                 connection.setRequestMethod("GET");
                 connection.setDoInput(true);
                 connection.connect();
-                int response = connection.getResponseCode();
-                Log.d("debug", "The response is: " + response);
                 is = connection.getInputStream();
 
                 // parse xml after getting the data
@@ -183,7 +180,6 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
                     } else if (eventType == XmlPullParser.TEXT) {
                         String content = xpp.getText();
                         content = content.trim();
-                        Log.d("debug", content);
                         StringBuilder sb;
                         if (pdData != null) {
                             switch (currentTag) {
@@ -234,7 +230,6 @@ public class RssFragment extends Fragment implements RssItemAdapter.RssOnItemCli
                     publishProgress(progress++);
                     eventType = xpp.next();
                 }
-                Log.v("tst", String.valueOf((rssDataList.size())));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
